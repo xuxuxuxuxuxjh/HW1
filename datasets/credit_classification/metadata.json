@@ -1,0 +1,46 @@
+{
+  "dataset": "credit_classification",
+  "task": "binary_classification",
+  "target": "default_next_month",
+  "feature_names": [
+    "LIMIT_BAL",
+    "AGE",
+    "PAY_0",
+    "PAY_2",
+    "PAY_3",
+    "PAY_4",
+    "PAY_5",
+    "PAY_6",
+    "BILL_AMT1",
+    "BILL_AMT2",
+    "BILL_AMT3",
+    "BILL_AMT4",
+    "BILL_AMT5",
+    "BILL_AMT6",
+    "PAY_AMT1",
+    "PAY_AMT2",
+    "PAY_AMT3",
+    "PAY_AMT4",
+    "PAY_AMT5",
+    "PAY_AMT6"
+  ],
+  "n_features": 20,
+  "categorical_features": [
+    "PAY_0",
+    "PAY_2",
+    "PAY_3",
+    "PAY_4",
+    "PAY_5",
+    "PAY_6"
+  ],
+  "id_column": "sample_id",
+  "n_train": 5000,
+  "fold_column": "fold",
+  "n_folds": 5,
+  "missing_value_representation": "empty CSV field",
+  "source": "https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients",
+  "files": {
+    "train.csv": "729b7847b17076e1dc5779ae410be0211b5900e8ded699ebd56aea2c8326b586",
+    "cv_folds.csv": "c94dec10c53400051e4a76224292e8ca2b1a1d2cfa5768c19e3835bcfa660650"
+  }
+}

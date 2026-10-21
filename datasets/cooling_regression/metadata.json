@@ -1,0 +1,39 @@
+{
+  "dataset": "cooling_regression",
+  "task": "regression",
+  "target": "cooling_load_kw",
+  "feature_names": [
+    "zone_1_area_m2",
+    "zone_1_delta_temp_c",
+    "zone_1_u_value_w_m2k",
+    "zone_1_solar_w_m2",
+    "zone_1_internal_heat_w",
+    "zone_2_area_m2",
+    "zone_2_delta_temp_c",
+    "zone_2_u_value_w_m2k",
+    "zone_2_solar_w_m2",
+    "zone_2_internal_heat_w",
+    "zone_3_area_m2",
+    "zone_3_delta_temp_c",
+    "zone_3_u_value_w_m2k",
+    "zone_3_solar_w_m2",
+    "zone_3_internal_heat_w",
+    "zone_4_area_m2",
+    "zone_4_delta_temp_c",
+    "zone_4_u_value_w_m2k",
+    "zone_4_solar_w_m2",
+    "zone_4_internal_heat_w"
+  ],
+  "n_features": 20,
+  "categorical_features": [],
+  "id_column": "sample_id",
+  "n_train": 5000,
+  "fold_column": "fold",
+  "n_folds": 5,
+  "missing_value_representation": "empty CSV field",
+  "source": "Original teaching simulation; independent draws from a fixed mechanism.",
+  "files": {
+    "train.csv": "2755f5e271a73d7e7966d5039cd238951423a6c251bb26a242f3e312468c29f9",
+    "cv_folds.csv": "4f8dd776bc39aa5915337f556007565cc988f290e378c57d25468b771e29cf72"
+  }
+}

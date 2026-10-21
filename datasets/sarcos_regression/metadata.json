@@ -1,0 +1,40 @@
+{
+  "dataset": "sarcos_regression",
+  "task": "regression",
+  "target": "torque_1",
+  "feature_names": [
+    "position_1",
+    "position_2",
+    "position_3",
+    "position_4",
+    "position_5",
+    "position_6",
+    "position_7",
+    "velocity_1",
+    "velocity_2",
+    "velocity_3",
+    "velocity_4",
+    "velocity_5",
+    "velocity_6",
+    "velocity_7",
+    "acceleration_1",
+    "acceleration_2",
+    "acceleration_3",
+    "acceleration_4",
+    "acceleration_5",
+    "acceleration_6",
+    "acceleration_7"
+  ],
+  "n_features": 21,
+  "categorical_features": [],
+  "id_column": "sample_id",
+  "n_train": 5000,
+  "fold_column": "fold",
+  "n_folds": 5,
+  "missing_value_representation": "empty CSV field",
+  "source": "https://gaussianprocess.org/gpml/data/",
+  "files": {
+    "train.csv": "fbc6b623981c1ab9a29948620de9c8faefc868aca6ff61035ba3dcdde945a6e7",
+    "cv_folds.csv": "6f1fdfa166ae05697a23e587179909c48ec88025943f995dbe031276e490fff3"
+  }
+}
