@@ -1,0 +1,9 @@
+{
+  "selected_method": "unscaled",
+  "metrics": {
+    "log_loss": 0.5243698871280689,
+    "roc_auc": 0.7334489369090399,
+    "accuracy": 0.7238,
+    "f1": 0.279603547209181
+  }
+}
