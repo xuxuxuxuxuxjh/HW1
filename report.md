@@ -8,63 +8,44 @@ All preprocessing is in the training pipeline and is fit only on the training ro
 
 Bagging uses 100 bootstrap samples, each the size of the fold training set, with replacement. Each sample fits the same Ridge or Logistic Regression learner on the same imputed and scaled feature representation; predictions or class-1 probabilities are averaged. The seed is 2026 and `n_jobs=1`.
 
-## Data diagnosis
+## Experiment settings
 
-**SARCOS regression**
+All methods use seed 2026 and the supplied five folds. Baseline: median imputation, StandardScaler, Ridge (`alpha=1`) for regression or Logistic Regression (`C=1`, `max_iter=2000`) for classification. `unscaled` changes only the scaler. Bagging uses 100 bootstrap fits of the baseline learner.
+
+### SARCOS regression
+
+**Data diagnosis**
 
 Rows: 5,000  
 Features: 21 (7 positions, 7 velocities, 7 accelerations)  
 Missing values: 0  
 Feature ranges: positions -0.923 to 2.249; velocities -4.734 to 4.683; accelerations -47.764 to 70.845  
 Skew/unusual values: `position_6` skewness -1.67; negative and extreme operating values are valid and retained  
-Target: `torque_1`, -90.39 to 112.27; mean 13.26; errors reported on the original scale
+Target: `torque_1`, -90.39 to 112.27; mean 13.26; errors use the original scale
 
-**Execution classification**
+**Five-fold results** (mean ± sample SD)
 
-Rows: 5,000  
-Features: 20 (four levels of bid/ask prices and quantities, order size, side, latency, volatility)  
-Missing values: 0  
-Feature ranges: prices 24.99 to 200.09; quantities and order size 25 to 4,365  
-Skewness: `order_size` 0.93; price features about 0.71  
-Side: -1 = sell (2,488 rows); +1 = buy (2,512 rows); both values are valid  
-Target: class 0 = 3,608 (72.16%); class 1 = 1,392 (27.84%); use probability metrics because classes are imbalanced
+| Method | Train RMSE | Validation RMSE | Validation MAE | Validation R² |
+|---|---:|---:|---:|---:|
+| Baseline | 5.4912 ± 0.0277 | 5.5305 ± 0.1083 | 3.9639 ± 0.0923 | 0.9265 ± 0.0051 |
+| Unscaled | 5.4914 ± 0.0277 | 5.5303 ± 0.1083 | 3.9629 ± 0.0914 | 0.9265 ± 0.0052 |
+| Bagging | 5.4913 ± 0.0277 | 5.5303 ± 0.1079 | 3.9638 ± 0.0939 | 0.9265 ± 0.0051 |
 
-Per-feature ranges, quartiles, missing rates, and skewness are saved in `runs/sarcos_regression/feature_diagnosis.csv` and `runs/execution_classification/feature_diagnosis.csv`.
+**Preprocessing comparison by fold** (delta = unscaled − baseline; lower RMSE is better)
 
-## Cross-validation results
+| Fold | Baseline RMSE | Unscaled RMSE | Delta |
+|---:|---:|---:|---:|
+| 0 | 5.543601 | 5.545206 | +0.001605 |
+| 1 | 5.624360 | 5.623460 | -0.000901 |
+| 2 | 5.471403 | 5.473398 | +0.001994 |
+| 3 | 5.377460 | 5.375349 | -0.002111 |
+| 4 | 5.635466 | 5.633868 | -0.001598 |
 
-Values below are mean and sample standard deviation over the five validation folds.
+Scaling has virtually no effect: the small differences change direction across folds. Bagging also has virtually no effect for this Ridge setting.
 
-| Task / method | Main metric | Other metrics |
-|---|---:|---|
-| SARCOS baseline | RMSE 5.5305 ± 0.1083 | MAE 3.9639 ± 0.0923; R² 0.9265 ± 0.0051 |
-| SARCOS unscaled | RMSE 5.5303 ± 0.1083 | MAE 3.9629 ± 0.0914; R² 0.9265 ± 0.0052 |
-| SARCOS bagging | RMSE 5.5303 ± 0.1079 | MAE 3.9638 ± 0.0939; R² 0.9265 ± 0.0051 |
-| Execution baseline | Log loss 0.5291 ± 0.0099 | ROC-AUC 0.7265 ± 0.0146; accuracy 0.7218 ± 0.0085; F1 0.2689 ± 0.0248 |
-| Execution unscaled | Log loss 0.5273 ± 0.0099 | ROC-AUC 0.7289 ± 0.0146; accuracy 0.7240 ± 0.0078; F1 0.2781 ± 0.0237 |
-| Execution bagging | Log loss 0.5289 ± 0.0096 | ROC-AUC 0.7267 ± 0.0143; accuracy 0.7218 ± 0.0090; F1 0.2712 ± 0.0280 |
+**Learning curve** (mean ± sample SD across folds; validation rows fixed)
 
-The main-metric preprocessing comparison by fold is shown below. Delta is `unscaled - baseline`; negative values favor the unscaled condition for both RMSE and log loss.
-
-| Fold | SARCOS baseline RMSE | SARCOS unscaled RMSE | Delta | Execution baseline log loss | Execution unscaled log loss | Delta |
-|---:|---:|---:|---:|---:|---:|---:|
-| 0 | 5.543601 | 5.545206 | +0.001605 | 0.535485 | 0.533529 | -0.001956 |
-| 1 | 5.624360 | 5.623460 | -0.000901 | 0.513054 | 0.510817 | -0.002237 |
-| 2 | 5.471403 | 5.473398 | +0.001994 | 0.535559 | 0.533700 | -0.001860 |
-| 3 | 5.377460 | 5.375349 | -0.002111 | 0.526015 | 0.525111 | -0.000904 |
-| 4 | 5.635466 | 5.633868 | -0.001598 | 0.535377 | 0.533586 | -0.001791 |
-
-The SARCOS scaling result changes direction across folds and the mean RMSE difference is only -0.0002, which is negligible beside fold-to-fold variation. Scaling has little practical effect for this Ridge configuration. For execution classification, unscaled inputs reduce log loss on all five folds, but the mean reduction is small (about 0.00175). This suggests scaling is not needed for this particular fitted Logistic Regression configuration; the result does not establish that scaling is unhelpful for other models or tuning settings.
-
-Bagging makes almost no difference. For SARCOS, mean validation RMSE changes from 5.5305 to 5.5303. For execution, mean validation log loss changes from 0.5291 to 0.5289. Both baseline learners are relatively stable linear models here, so averaging bootstrap fits reduces little variance. These runs do not show a meaningful Bagging gain.
-
-The mean training and validation primary scores across folds were 5.4912 and 5.5305 RMSE for SARCOS baseline, and 0.5262 and 0.5291 log loss for execution baseline. The small gaps indicate similar performance on training and validation folds at these settings.
-
-## SARCOS learning curve
-
-Each validation fold remains fixed while only the training portion is subsampled. The table reports mean and sample standard deviation over folds.
-
-| Training rows per fold | Training RMSE | Validation RMSE |
+| Training rows | Train RMSE | Validation RMSE |
 |---:|---:|---:|
 | 500 | 5.2722 ± 0.1729 | 5.7050 ± 0.1256 |
 | 1,000 | 5.4015 ± 0.1865 | 5.5761 ± 0.0888 |
@@ -72,20 +53,45 @@ Each validation fold remains fixed while only the training portion is subsampled
 | 3,000 | 5.4981 ± 0.0108 | 5.5471 ± 0.1020 |
 | 4,000 | 5.4912 ± 0.0277 | 5.5305 ± 0.1083 |
 
-Validation RMSE improves as more training data are used, with diminishing gains after roughly 1,000–2,000 rows. Training RMSE rises as larger samples include more varied cases, while the training-validation gap narrows from about 0.43 at 500 rows to about 0.04 at 4,000. This pattern suggests that more data helps the fixed Ridge model and reduces its sampling variability. The remaining small gap and the flattening validation curve suggest that additional data alone may yield modest gains; model form and irreducible noise may also limit performance. The conclusion is specific to Ridge with `alpha=1.0` and this sample.
+Validation RMSE improves as training size grows, with smaller gains after about 1,000–2,000 rows. The train-validation gap narrows from about 0.43 at 500 rows to 0.04 at 4,000, suggesting more data helps this fixed Ridge model. The conclusion is limited to `alpha=1` and these folds. The plot is saved as `runs/sarcos_regression/learning_curve_rmse.png`.
 
-The plotted curve is saved as `runs/sarcos_regression/learning_curve_rmse.png`.
+**Selected method / full-development training score**: `unscaled`; RMSE 5.4953, MAE 3.9382, R² 0.9278.
 
-## Final models and training-row scores
+### Execution classification
 
-The final method for each task is selected by the lowest mean validation score on that task's primary metric. `unscaled` wins for both tasks, although the difference is tiny for SARCOS. Each selected model is refit on all 5,000 development rows.
+**Data diagnosis**
 
-| Dataset | Selected method | Full-development training metrics |
-|---|---|---|
-| SARCOS | unscaled | RMSE 5.4953; MAE 3.9382; R² 0.9278 |
-| Execution | unscaled | Log loss 0.5244; ROC-AUC 0.7334; accuracy 0.7238; F1 0.2796 |
+Rows: 5,000  
+Features: 20 (four levels of bid/ask prices and quantities, order size, side, latency, volatility)  
+Missing values: 0  
+Feature ranges: prices 24.99 to 200.09; quantities and order size 25 to 4,365  
+Skewness: `order_size` 0.93; price features about 0.71  
+Side: -1 = sell (2,488 rows); +1 = buy (2,512 rows); both values are valid  
+Target: class 0 = 3,608 (72.16%); class 1 = 1,392 (27.84%); class imbalance makes probability metrics useful
 
-These are training-row metrics, not held-out test results. The separate test data were not present in the supplied folder, so final test performance remains to be measured when the instructor provides them.
+**Five-fold results** (mean ± sample SD)
+
+| Method | Train log loss | Validation log loss | Validation ROC-AUC | Validation accuracy | Validation F1 |
+|---|---:|---:|---:|---:|---:|
+| Baseline | 0.5262 ± 0.0024 | 0.5291 ± 0.0099 | 0.7265 ± 0.0146 | 0.7218 ± 0.0085 | 0.2689 ± 0.0248 |
+| Unscaled | 0.5243 ± 0.0024 | 0.5273 ± 0.0099 | 0.7289 ± 0.0146 | 0.7240 ± 0.0078 | 0.2781 ± 0.0237 |
+| Bagging | 0.5261 ± 0.0024 | 0.5289 ± 0.0096 | 0.7267 ± 0.0143 | 0.7218 ± 0.0090 | 0.2712 ± 0.0280 |
+
+**Preprocessing comparison by fold** (delta = unscaled − baseline; lower log loss is better)
+
+| Fold | Baseline log loss | Unscaled log loss | Delta |
+|---:|---:|---:|---:|
+| 0 | 0.535485 | 0.533529 | -0.001956 |
+| 1 | 0.513054 | 0.510817 | -0.002237 |
+| 2 | 0.535559 | 0.533700 | -0.001860 |
+| 3 | 0.526015 | 0.525111 | -0.000904 |
+| 4 | 0.535377 | 0.533586 | -0.001791 |
+
+Unscaled inputs reduce log loss in all five folds, but the average gain is small (about 0.00175). Bagging changes mean validation log loss from 0.5291 to 0.5289, so it gives little benefit for this Logistic Regression setting.
+
+**Selected method / full-development training score**: `unscaled`; log loss 0.5244, ROC-AUC 0.7334, accuracy 0.7238, F1 0.2796.
+
+These full-development scores are training scores, not held-out test results. The test data have not been provided.
 
 ## Reproduction and limitations
 
