@@ -16,8 +16,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from sklearn.impute import SimpleImputer
 from sklearn.ensemble import BaggingClassifier, BaggingRegressor
+from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression, Ridge
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -31,41 +31,17 @@ def make_model(dataset_name, method="baseline", random_state=2026):
     if dataset_name not in regression | classification:
         raise ValueError(f"Unknown dataset: {dataset_name}")
 
-    # The two selected datasets contain only numeric inputs. Keep imputation
-    # in the pipeline so it is learned from the current training fold only.
     if method not in {"baseline", "unscaled", "bagging"}:
         raise ValueError(f"Unknown method: {method}")
 
-    if dataset_name in regression:
-        base_estimator = Ridge(alpha=1.0)
-    else:
-        base_estimator = LogisticRegression(
-            C=1.0, max_iter=2000, random_state=random_state
-        )
-
+    estimator = (Ridge(alpha=1.0) if dataset_name in regression else
+                 LogisticRegression(C=1.0, max_iter=2000, random_state=random_state))
     if method == "bagging":
-        if dataset_name in regression:
-            estimator = BaggingRegressor(
-                estimator=base_estimator,
-                n_estimators=100,
-                max_samples=1.0,
-                bootstrap=True,
-                random_state=random_state,
-                n_jobs=1,
-            )
-        else:
-            estimator = BaggingClassifier(
-                estimator=base_estimator,
-                n_estimators=100,
-                max_samples=1.0,
-                bootstrap=True,
-                random_state=random_state,
-                n_jobs=1,
-            )
-    else:
-        estimator = base_estimator
+        bagger = BaggingRegressor if dataset_name in regression else BaggingClassifier
+        estimator = bagger(estimator=estimator, n_estimators=100, bootstrap=True,
+                           random_state=random_state, n_jobs=1)
 
-    scaler = StandardScaler() if method != "unscaled" else "passthrough"
+    scaler = "passthrough" if method == "unscaled" else StandardScaler()
     return Pipeline([
         ("imputer", SimpleImputer(strategy="median")),
         ("scaler", scaler),

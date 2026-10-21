@@ -78,7 +78,7 @@ These are training-row metrics, not held-out test results. The separate test dat
 
 ## Reproduction and limitations
 
-Open `homework.ipynb`, run the cells from top to bottom, and keep `train.py`, `test.py`, and `datasets/` beside it. The experiment cell writes fold scores and summaries under `runs/`. The tested environment was Python 3.14.7, NumPy 2.5.4, pandas 3.0.6, scikit-learn 1.9.1, and Matplotlib 3.11.2; the notebook also installs compatible package versions. All experiments use seed 2026. No public labels or held-out answers were retrieved.
+Open `homework.ipynb`, run the cells from top to bottom for one dataset, then change `DATASET` in the setup cell and repeat for the other task. Keep `train.py`, `test.py`, and `datasets/` beside it. The experiment cell writes fold scores and summaries under `runs/`. The tested environment was Python 3.14.7, NumPy 2.5.4, pandas 3.0.6, scikit-learn 1.9.1, and Matplotlib 3.11.2; the notebook also installs compatible package versions. All experiments use seed 2026. No public labels or held-out answers were retrieved.
 
 The SARCOS source is the [SARCOS dataset page](https://gaussianprocess.org/gpml/data/). Execution risk is a supplied synthetic simulation; its outcomes include random future market changes and should not be interpreted as real trading performance. The evaluation compares a small set of linear learners and fixed hyperparameters, so it does not establish the best possible model.
 
