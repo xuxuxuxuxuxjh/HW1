@@ -10,13 +10,24 @@ Bagging uses 100 bootstrap samples, each the size of the fold training set, with
 
 ## Data diagnosis
 
-### SARCOS robot torque regression
+**SARCOS regression**
 
-The 21 inputs are seven joint positions, seven velocities, and seven accelerations. There are 5,000 complete rows. Their scales differ substantially: across the seven joint position columns, observed values range from about -0.923 to 2.249; velocities range from -4.734 to 4.683; accelerations range from -47.764 to 70.845. Negative values are valid operating conditions. `position_6` is left-skewed (skewness -1.67); most feature skewness is smaller. The target `torque_1` ranges from -90.39 to 112.27, with mean 13.26 and standard deviation 20.45. The target is kept on its original scale for all reported errors.
+Rows: 5,000  
+Features: 21 (7 positions, 7 velocities, 7 accelerations)  
+Missing values: 0  
+Feature ranges: positions -0.923 to 2.249; velocities -4.734 to 4.683; accelerations -47.764 to 70.845  
+Skew/unusual values: `position_6` skewness -1.67; negative and extreme operating values are valid and retained  
+Target: `torque_1`, -90.39 to 112.27; mean 13.26; errors reported on the original scale
 
-### Execution slippage classification
+**Execution classification**
 
-The 20 inputs describe four levels of bid/ask prices and quantities, order size, direction, latency, and volatility. There are 5,000 complete rows. Prices range from about 24.99 to 200.09; quantities and order size are more widely spread, with values up to 4,365. `order_size` is right-skewed (skewness 0.93); the price columns have skewness around 0.71. `side` contains 2,512 buys (`1`) and 2,488 sells (`-1`); it is retained as a numeric binary direction, where the signs represent opposite order directions. The target has 3,608 negatives and 1,392 positives (72.16% / 27.84%). Because of this imbalance, log loss and ROC-AUC are more informative than accuracy alone. No logarithmic transform is applied to prices or sizes.
+Rows: 5,000  
+Features: 20 (four levels of bid/ask prices and quantities, order size, side, latency, volatility)  
+Missing values: 0  
+Feature ranges: prices 24.99 to 200.09; quantities and order size 25 to 4,365  
+Skewness: `order_size` 0.93; price features about 0.71  
+Side: -1 = sell (2,488 rows); +1 = buy (2,512 rows); both values are valid  
+Target: class 0 = 3,608 (72.16%); class 1 = 1,392 (27.84%); use probability metrics because classes are imbalanced
 
 Per-feature ranges, quartiles, missing rates, and skewness are saved in `runs/sarcos_regression/feature_diagnosis.csv` and `runs/execution_classification/feature_diagnosis.csv`.
 
